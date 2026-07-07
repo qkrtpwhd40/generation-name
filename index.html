@@ -442,6 +442,7 @@
       .hero-art { display: none; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -455,6 +456,13 @@
   <template id="icon-heart"><svg viewBox="0 0 24 24"><path d="M12 21s-7.4-4.7-9.6-9.1C.7 8.3 2.7 4 6.7 4c2.1 0 3.7 1.1 4.6 2.5C12.3 5.1 13.9 4 16 4c4 0 6 4.3 4.3 7.9C19.1 16.3 12 21 12 21z"/></svg></template>
 
   <script>
+    const SUPABASE_URL = "https://ftogkkbdhilgeapwnzkn.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_WWsWWslXlbJCVrE-Sy2cOw_1_LZ3dZc";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
     const ageGroups = ["10대", "20대", "30대", "40대", "50대", "60대", "70대", "80대 이상"];
     const fallbackWords = [
       { id: "w1", word: "킹받네", meaning: "매우 짜증나거나 화가 나는 상황을 강조하는 말", example: "버스 바로 눈앞에서 놓쳐서 킹받네.", ages: ["10대", "20대"], field: "감정", rank: 97, author: "세대톡" },
@@ -502,19 +510,35 @@
       return data;
     }
 
-    async function loadWords() {
-      try {
-        const data = await api("/api/words");
-        state.words = data.words;
-        state.online = true;
-      } catch (error) {
-        state.words = fallbackWords;
-        state.online = false;
-      } finally {
-        state.loading = false;
-        render();
-      }
-    }
+async function loadWords() {
+  try {
+
+    const { data, error } = await supabaseClient
+      .from("words")
+      .select("*");
+
+
+    if (error) throw error;
+
+
+    state.words = data.length ? data : fallbackWords;
+    state.online = true;
+
+
+  } catch (error) {
+
+    console.log(error);
+
+    state.words = fallbackWords;
+    state.online = false;
+
+  } finally {
+
+    state.loading = false;
+    render();
+
+  }
+}
 
     function render() {
       if (!state.user) return renderSignup();
