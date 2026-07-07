@@ -917,7 +917,7 @@ state.words.unshift(data);
         formEl.reset();
         toast("신조어가 모든 사용자에게 공유됐어요.");
         render();
-        showDetail(data.word.id);
+        showDetail(data.id);
       } catch (error) {
         toast(error.message);
       }
